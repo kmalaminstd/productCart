@@ -4,6 +4,8 @@ import products from './products.js'
 
 let productDivElm = document.querySelector('.products')
 let cartItemsDivElm = document.querySelector('.cart-items') 
+let subTotalElm = document.querySelector('.subtotal')
+let cartTotalItemEm = document.querySelector('.total-items-in-cart')
 
 // render products
 function renderProducts(){
@@ -48,7 +50,8 @@ function generateProductId (e){
 
 // product add to arr and cart
 
-let productCart = []
+let productCart = JSON.parse(localStorage.getItem('CART')) || []
+updateCartElement()
 
 function productAddition(id){
     
@@ -61,6 +64,7 @@ function productAddition(id){
 
         matchProduct.productUnit = 1
         productCart.push(matchProduct)
+        
     }
 
     updateCartElement()
@@ -84,6 +88,26 @@ function addToCartFunc(){
 function updateCartElement(){
     renderCartItems()
     renderSubTotals()
+    removeItemFromList()
+    itemSavedInLocalStorage()
+}
+// item saved in local storage
+function itemSavedInLocalStorage(){
+
+    localStorage.setItem('CART', JSON.stringify(productCart))
+    
+}
+
+// remove item from arr
+function removeItemFromList(){
+    const cartItemImgElm = document.querySelectorAll('.cart-item-info img')
+    for(let i = 0; i < cartItemImgElm.length; i++){
+        cartItemImgElm[i].addEventListener('click', e => {
+            const id = generateProductId(e.target)
+            productCart = productCart.filter( product => product.id !== Number(id))   
+            updateCartElement()
+        })
+    }
 }
 
 function renderCartItems(){
@@ -92,8 +116,8 @@ function renderCartItems(){
         
         const htmlELm = `
         <div class="cart-item">
-            <div class="item-info">
-                <img src="${product.imgSrc}" alt="t-shirt 1">
+            <div class="item-info cart-item-info">
+                <img src="${product.imgSrc}" alt="t-shirt 1" class="id-${product.id}">
                 <h4>${product.name}</h4>
             </div>
             <div class="unit-price">
@@ -108,12 +132,25 @@ function renderCartItems(){
          </div>
     `
     cartItemsDivElm.innerHTML += htmlELm 
+
+    
     })
+
     changeUnits()
+    
 }
 
 function renderSubTotals(){
-    
+    let totalPrice = 0, 
+    totalItems = 0
+
+    productCart.map( elem => {
+        totalPrice += elem.price * elem.productUnit
+        totalItems += elem.productUnit
+    })
+
+    subTotalElm.innerHTML = `Subtotal (${totalItems} items): $${totalPrice.toFixed(2)}`
+    cartTotalItemEm.innerHTML = `${totalItems}`
 }
 
 
@@ -124,7 +161,7 @@ function changeUnits(){
     let g = 0
     let oldUnitId = 0
 
-    let newProductUnit = 1 ;
+    
     
     for(let i = 0; i < productUnit.length; i++){
         productUnit[i].addEventListener('click', e => {
@@ -132,16 +169,16 @@ function changeUnits(){
             // console.log(id);
             
             productCart.map( elem => {
-
+                let newProductUnit =  elem.productUnit;
                 // console.log(odlProductUnit);
                 
                 if(elem.id === Number(id)){
                 
-                    if(e.target.classList[2] === 'minus'){
+                    if(e.target.classList[2] === 'minus' && newProductUnit > 1){
                         newProductUnit--
                     }
 
-                    if(e.target.classList[2] === 'plus'){
+                    if(e.target.classList[2] === 'plus' && elem.instock > newProductUnit){
                         newProductUnit++
                     }
 
@@ -149,12 +186,13 @@ function changeUnits(){
                 }
                 // console.log(g);
                 elem.productUnit = newProductUnit
+
                 
-                // updateCartElement()
 
-                console.log(elem.productUnit);
+                return elem
             })
-
+            
+            updateCartElement()
         })
         
     }
