@@ -7,10 +7,14 @@ let cartItemsDivElm = document.querySelector('.cart-items')
 let subTotalElm = document.querySelector('.subtotal')
 let cartTotalItemEm = document.querySelector('.total-items-in-cart')
 
-document.querySelector('.shopping-bag').addEventListener('click', e => {
-    e.preventDefault()
-    document.querySelector('.cart').classList.toggle('cartToggle')
-})
+if(window.screen.width <= 480){
+    document.querySelector('.shopping-bag').addEventListener('click', e => {
+        e.preventDefault()
+        document.querySelector('.cart').classList.toggle('cartToggle')
+    })
+}
+
+
 
 // render products
 function renderProducts(){

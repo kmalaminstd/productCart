@@ -320,12 +320,12 @@ main .model {
 .cart {
   height: 100%;
   width: 25%;
-  display: none;
+  display: block;
   position: relative;
 }
 
 .cart.cartToggle{
-  display: block;
+  display: none;
 }
 /* cart header */
 .cart-header {
